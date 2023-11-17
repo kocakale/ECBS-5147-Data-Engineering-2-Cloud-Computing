@@ -1,5 +1,6 @@
 from typing import Any, Optional
-
+import pandas as pd
+import hashlib
 
 def encrypt(s: str) -> str:
     """
@@ -8,7 +9,7 @@ def encrypt(s: str) -> str:
     @param s: string to encrypt
     @return: the SHA256 hexdigest value of `s`
     """
-    pass
+    return hashlib.sha256(s).hexdigest()
 
 
 def init_table() -> None:
@@ -16,10 +17,11 @@ def init_table() -> None:
     Returns empty dataframe
     @return: An empty dataframe with these columns: 'user_name' and 'password'
     """
-    pass
+    user_df = pd.DataFrame(columns=["user_name", "password"])
+    return user_df
 
 
-def get_encrypted_password_for_user(user_name: str) -> Optional[str]:
+def get_encrypted_password_for_user(df, user_name: str) -> Optional[str]:
     """
     Returns the encrypted password of a user.
     If no user with the specified `user_name` exists, return None
@@ -27,7 +29,9 @@ def get_encrypted_password_for_user(user_name: str) -> Optional[str]:
     @param user_name: the username
     @return: the encrypted password of the user
     """
-    pass
+    password = df[df['user_name'] == user_name]
+    encrypted_password = hashlib.sha256(password).hexdigest()
+    return encrypted_password
 
 
 def add_or_update_user(df: Any, user_name: str, password: str) -> Any:
@@ -42,7 +46,12 @@ def add_or_update_user(df: Any, user_name: str, password: str) -> Any:
 
     @return: the dataframe with the new user added or the password updated
     """
-    pass
+    if user_name in df["user_name"]:
+        df.loc[df["user_name"] == user_name, "password"] = encrypt(password)
+    else:
+        df = df._append({"user_name": user_name, "password": encrypt(password)}, ignore_index=True)
+
+    return df
 
 
 def authenticate_user(df: Any, user_name: str, password: str) -> bool:
@@ -55,13 +64,16 @@ def authenticate_user(df: Any, user_name: str, password: str) -> bool:
 
     @return: True if the user exists and the password matches, False otherwise
     """
-    pass
+    return (user_name in df) and (
+        get_encrypted_password_for_user(df, user_name) == encrypt(password)
+    )
+
 
 
 if __name__ == "__main__":
     #
     # Example execution
-    #
+    
     # Create initial table
     user_df = init_table()
 

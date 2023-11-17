@@ -1,6 +1,7 @@
-# %%
+#%%
 import hashlib
 
+ 
 # %%
 message = "Hello, 안녕하세요, ¡Árvíztűrő tükörfúrógép! @ 🏫📚💻🎓"
 print(message)
